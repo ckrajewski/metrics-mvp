@@ -5,7 +5,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 class DropdownControl extends Component {
   constructor(props) {
     super(props);
-    this.state = { selected: [], selectedValue: null };
+    this.state = { selected: [], selectedOption:null, selectedValue: null};
   }
 
   componentDidMount() {
@@ -16,16 +16,15 @@ class DropdownControl extends Component {
     */
   }
 
-  handleSelectedValue = (event) => {
+  handleSelectedValue = (event, selectedOption, selectedValue) => {
     const { obj, handleSelected } = this.props;
     const [prettyName] = obj;
-    const selectedValue = event.target.textContent;
-    this.setState({ selectedValue });
+    this.setState({ selectedValue:selectedValue, selectedOption:selectedOption });
     handleSelected(selectedValue, prettyName.prettyName);
   }
 
   render() {
-    const { selected, selectedValue } = this.state;
+    const { selected, selectedOption } = this.state;
     const { obj } = this.props;
     const [
       prettyName,
@@ -35,7 +34,7 @@ class DropdownControl extends Component {
     ] = obj;
 
     const dropdownId = `${name.name}-dropdown`;
-    const shownValue = selectedValue == null ? prettyName.prettyName : selectedValue;
+    const shownValue = selectedOption == null ? prettyName.prettyName : selectedOption;
     return (
       <div>
         <Dropdown>
@@ -45,10 +44,14 @@ class DropdownControl extends Component {
           {selected}
           <Dropdown.Menu>
             {
-              options.options.map(value => (
-                <Dropdown.Item onClick={this.handleSelectedValue} eventKey={value} href="#">{value}</Dropdown.Item>
-              ))
+              options.options.map(value => {
+                if(typeof value !== 'object') {
+                 return (<Dropdown.Item onClick={(event) => this.handleSelectedValue(event, value, value)} eventKey={value} href="#">{value}</Dropdown.Item>
+              )
             }
+             return (<Dropdown.Item onClick={(event) => this.handleSelectedValue(event, value.option, value.value) } eventKey={value.value} href="#">{value.option}</Dropdown.Item>)
+
+            })}
           </Dropdown.Menu>
         </Dropdown>
       </div>

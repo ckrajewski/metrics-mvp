@@ -3,7 +3,9 @@ import { css } from 'emotion';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Intro from './components/Intro';
-import { fetchGraphData, fetchRoutes, fetchRouteConfig, resetGraphData } from './actions/action';
+import {
+  fetchGraphData, fetchRoutes, fetchRouteConfig, resetGraphData,
+} from './actions/action';
 import './App.css';
 import ControlPanel from './components/ControlPanel';
 import Info from './components/Info';
@@ -35,12 +37,13 @@ class App extends Component {
       }
       >
         <Intro />
-        <ControlPanel routes={routes}
+        <ControlPanel
+          routes={routes}
           fetchRouteConfig={this.props.fetchRouteConfig}
           resetGraphData={this.props.resetGraphData}
-          fetchGraphData={this.props.fetchGraphData} />
-        <div className="center metricsWidth">
-        </div>
+          fetchGraphData={this.props.fetchGraphData}
+        />
+        <div className="center metricsWidth" />
         <Info graphData={graphData} graphError={graphError} />
       </div>
     );

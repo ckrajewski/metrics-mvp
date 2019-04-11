@@ -11,7 +11,7 @@ class ControlPanel extends Component {
     this.state = {
       routeId: '12',
       directionId: null,
-      secondStopList:[],
+      secondStopList: [],
       firstStopId: null,
       secondStopId: null,
       date: new Date('2019-02-01T03:50'),
@@ -20,20 +20,22 @@ class ControlPanel extends Component {
   }
 
   componentDidUpdate() {
+    const { directionId, routeId } = this.state;
+    const { fetchRouteConfig } = this.props;
     const selectedRoute = this.getSelectedRouteInfo();
     if (selectedRoute) {
       if (!selectedRoute.directions) {
-        this.props.fetchRouteConfig(this.state.routeId);
-      } else {
-        if (!this.state.directionId && selectedRoute.directions.length > 0) {
-          this.setState({ directionId: selectedRoute.directions[0].id });
-        }
+        this.props.fetchRouteConfig(routeId);
+      } else if (!directionId && selectedRoute.directions.length > 0) {
+        this.setState({ directionId: selectedRoute.directions[0].id });
       }
     }
   }
 
   updateGraphData = () => {
-    const { routeId, directionId, firstStopId, date, secondStopId } = this.state;
+    const {
+      routeId, directionId, firstStopId, date, secondStopId,
+    } = this.state;
 
     this.props.resetGraphData();
     if (firstStopId != null && routeId != null) {
@@ -43,7 +45,7 @@ class ControlPanel extends Component {
         direction_id: directionId,
         start_stop_id: firstStopId,
         end_stop_id: secondStopId,
-        date: formattedDate
+        date: formattedDate,
       };
       this.props.fetchGraphData(params);
     }
@@ -54,31 +56,33 @@ class ControlPanel extends Component {
     this.updateGraphData();
   }
 
-  setDate = (date) => this.setState({ date }, this.updateGraphData)
+  setDate = date => this.setState({ date }, this.updateGraphData)
 
-  setRouteId = (routeId) => this.setState({ routeId }, this.selectedRouteChanged)
+  setRouteId = routeId => this.setState({ routeId }, this.selectedRouteChanged)
 
-  setDirectionId = (directionId) => this.setState({ directionId }, this.selectedDirectionChanged)
+  setDirectionId = directionId => this.setState({ directionId }, this.selectedDirectionChanged)
 
-  onSelectSecondStop = (firstStopId,selectFirstStopCallback) => {
-    selectFirstStopCallback ? selectFirstStopCallback(firstStopId) :
-    this.setState({ secondStopId: firstStopId }, this.selectedStopChanged);
+  onSelectSecondStop = (firstStopId, selectFirstStopCallback) => {
+    selectFirstStopCallback ? selectFirstStopCallback(firstStopId)
+      : this.setState({ secondStopId: firstStopId }, this.selectedStopChanged);
   }
 
-  onSelectFirstStop = stopId => {
-    const {directionId} = this.state;
-    const selectedRoute = {...this.getSelectedRouteInfo()};
-    const secondStopInfo = this.getStopsInfoInGivenDirection(selectedRoute,directionId);
-    const secondStopListIndex=secondStopInfo.stops.indexOf(stopId);
-    const secondStopList = secondStopInfo.stops.slice(secondStopListIndex+1);
-    this.setState({firstStopId: stopId, secondStopList:secondStopList});
+  onSelectFirstStop = (stopId) => {
+    const { directionId } = this.state;
+    const selectedRoute = { ...this.getSelectedRouteInfo() };
+    const secondStopInfo = this.getStopsInfoInGivenDirection(selectedRoute, directionId);
+    const secondStopListIndex = secondStopInfo.stops.indexOf(stopId);
+    const secondStopList = secondStopInfo.stops.slice(secondStopListIndex + 1);
+    this.setState({ firstStopId: stopId, secondStopList });
   }
 
-  onSelectSecondStop = stopId => {
-     this.setState({ secondStopId: stopId }, this.selectedStopChanged);
+  onSelectSecondStop = (stopId) => {
+    this.setState({ secondStopId: stopId }, this.selectedStopChanged);
   }
+
   selectedRouteChanged = () => {
     const { routeId } = this.state;
+    const { fetchRouteConfig } = this.props;
     const selectedRoute = this.getSelectedRouteInfo();
     if (!selectedRoute) {
       return;
@@ -87,20 +91,21 @@ class ControlPanel extends Component {
       this.setDirectionId(null);
       this.props.fetchRouteConfig(routeId);
     } else {
-      const directionId = selectedRoute.directions.length > 0 ? selectedRoute.directions[0].id : null
+      const directionId = selectedRoute.directions.length > 0 ? selectedRoute.directions[0].id : null;
       this.setDirectionId(directionId);
     }
   }
+
   getStopsInfoInGivenDirection = (selectedRoute, directionId) => selectedRoute.directions.find(dir => dir.id === directionId);
 
   selectedDirectionChanged = () => {
     const { firstStopId, directionId } = this.state;
     const selectedRoute = this.getSelectedRouteInfo();
-    const selectedDirection = (selectedRoute && selectedRoute.directions && directionId) ?
-        this.getStopsInfoInGivenDirection(selectedRoute,directionId) : null;
+    const selectedDirection = (selectedRoute && selectedRoute.directions && directionId)
+      ? this.getStopsInfoInGivenDirection(selectedRoute, directionId) : null;
     if (firstStopId) {
       if (!selectedDirection || selectedDirection.stops.indexOf(firstStopId) === -1) {
-        this.setState({firstStopId:null, secondStopId:null});
+        this.setState({ firstStopId: null, secondStopId: null });
       }
     }
   }
@@ -125,13 +130,15 @@ class ControlPanel extends Component {
 
   render() {
     const { routes } = this.props;
-    const { date, routeId, directionId, firstStopId, secondStopId, secondStopList } = this.state;
+    const {
+      date, routeId, directionId, firstStopId, secondStopId, secondStopList,
+    } = this.state;
 
     const selectedRoute = this.getSelectedRouteInfo();
-    const selectedDirection = (selectedRoute && selectedRoute.directions && directionId) ?
-        selectedRoute.directions.find(dir => dir.id === directionId) : null;
+    const selectedDirection = (selectedRoute && selectedRoute.directions && directionId)
+      ? selectedRoute.directions.find(dir => dir.id === directionId) : null;
     return (
-        <div className={css`
+      <div className={css`
           background-color: #add8e6;
           color: #fff;
           border-radius: 5px;
@@ -141,49 +148,73 @@ class ControlPanel extends Component {
            grid-row: row2-start ;
       `
       }
-        >
-          <DatePicker value={date} onChange={this.setDate} />
-          <DropdownControl title="Route" name='route' value={routeId}
-            onSelect={this.setRouteId} 
-            options={
-                (routes || []).map(route => ({label:route.title, key:route.id}))
-            } />
-            { selectedRoute ?
-                <DropdownControl title="Direction" name='direction' value={directionId}
-                onSelect={this.setDirectionId}
-                options={
+      >
+        <DatePicker value={date} onChange={this.setDate} />
+        <DropdownControl
+          title="Route"
+          name="route"
+          value={routeId}
+          onSelect={this.setRouteId}
+          options={
+                (routes || []).map(route => ({ label: route.title, key: route.id }))
+            }
+        />
+        { selectedRoute
+          ? (
+            <DropdownControl
+              title="Direction"
+              name="direction"
+              value={directionId}
+              onSelect={this.setDirectionId}
+              options={
                   (selectedRoute.directions || []).map(direction => ({
-                    label:direction.title, key:direction.id
+                    label: direction.title, key: direction.id,
                   }))
-                } /> : null
+                }
+            />
+          ) : null
             }
-            { (selectedDirection) ?
-                <DropdownControl title="Stop" name='stop' value={firstStopId}
-                onSelect={this.onSelectFirstStop}
-                options={
+        { (selectedDirection)
+          ? (
+            <DropdownControl
+              title="Stop"
+              name="stop"
+              value={firstStopId}
+              onSelect={this.onSelectFirstStop}
+              options={
                   (selectedDirection.stops || []).map(firstStopId => ({
-                    label: (selectedRoute.stops[firstStopId] || {title:firstStopId}).title,
-                    key:firstStopId
+                    label: (selectedRoute.stops[firstStopId] || { title: firstStopId }).title,
+                    key: firstStopId,
                   }))
-                } /> : null
+                }
+            />
+          ) : null
             }
-            { (selectedDirection) ?
-                <DropdownControl title="Stop" name='stop' value={secondStopId}
-                onSelect={this.onSelectSecondStop}
-                options={
+        { (selectedDirection)
+          ? (
+            <DropdownControl
+              title="Stop"
+              name="stop"
+              value={secondStopId}
+              onSelect={this.onSelectSecondStop}
+              options={
                   (secondStopList || []).map(firstStopId => ({
-                    label: (selectedRoute.stops[firstStopId] || {title:firstStopId}).title,
-                    key:firstStopId
+                    label: (selectedRoute.stops[firstStopId] || { title: firstStopId }).title,
+                    key: firstStopId,
                   }))
-                } /> : null
+                }
+            />
+          ) : null
             }
-        </div>
+      </div>
     );
   }
 }
 
 ControlPanel.propTypes = {
   fetchGraphData: PropTypes.func.isRequired,
+  resetGraphData: PropTypes.func.isRequired,
+  routes: PropTypes.instanceOf(Object)
 };
 
 export default ControlPanel;

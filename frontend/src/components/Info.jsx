@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { css } from 'emotion';
-import { BarChart /*, LineChart */ } from 'react-d3-components';
+import { BarChart /* , LineChart */ } from 'react-d3-components';
 
 /*
 const lineData = [
@@ -39,7 +39,6 @@ class Info extends Component {
   }
 
   render() {
-
     const { graphData, graphError } = this.props;
 
     const histogram = graphData ? graphData.headway_min.histogram : null;
@@ -52,7 +51,7 @@ class Info extends Component {
         `
         }
       >
-      {histogram ?
+        {histogram
         /* <LineChart
           data={lineData}
           width={400}
@@ -66,11 +65,12 @@ class Info extends Component {
                   }
                 }
         /> */
-        <BarChart
-          data={[{values: histogram.map(bin => ({x:''+bin.value, y:bin.count}))}]}
-          width={Math.max(400, histogram.length * 50)}
-          height={400}
-          margin={
+          ? (
+            <BarChart
+              data={[{ values: histogram.map(bin => ({ x: `${bin.value}`, y: bin.count })) }]}
+              width={Math.max(400, histogram.length * 50)}
+              height={400}
+              margin={
                   {
                     top: 10,
                     bottom: 50,
@@ -78,8 +78,12 @@ class Info extends Component {
                     right: 20,
                   }
                 }
-      /> : null }
-      <code>{graphError ? graphError : ''}{ graphData ? JSON.stringify(graphData) : null}</code>
+            />
+          ) : null }
+        <code>
+          {graphError || ''}
+          { graphData ? JSON.stringify(graphData) : null}
+        </code>
       </div>
     );
   }
